@@ -68,14 +68,14 @@ public class Convolution implements Transform{
 	public void calculate() {
 		// TODO Auto-generated method stub
 		int n = kernel.length;
+		
 		//calculate the sum of values in kernel
 		double sumK = calculateKernelSum(kernel, n);
 		
 		result = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());
-		double e1 = 1/sumK;
-		for(int x=0; x<n;x++) {
-			for(int y =0; y<n; y++) {
-				if((x-n/2) >= 0 && (y-n/2) >=0) {
+		for(int x=0; x<source.getWidth();x++) {
+			for(int y =0; y<source.getHeight(); y++) {
+				if((x>n/2) && (y > n/2) && (x<source.getWidth() - n/2) && (y<source.getHeight() - n/2)) {
 					
 					double s = 0;
 					for(int k = -n/2; k <= n/2; k++) {
@@ -84,7 +84,7 @@ public class Convolution implements Transform{
 							
 						}
 					}
-					double res = e1 * s;
+					double res = (double)s/sumK;
 					result.getRaster().setSample(x, y, 0, res);
 					
 				}

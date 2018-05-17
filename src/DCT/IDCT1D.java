@@ -41,4 +41,10 @@ public class IDCT1D implements Transform {
 
         return result;
     }
+
+	@Override
+	public void setKernel(double[][] kernel) {
+		// TODO Auto-generated method stub
+		
+	}
 }

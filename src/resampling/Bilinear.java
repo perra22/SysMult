@@ -5,13 +5,10 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 
 import DCT.Transform;
 
-public class NearestNeighbor implements Transform {
+public class Bilinear implements Transform {
 
 	BufferedImage source;
 	BufferedImage result;
@@ -25,6 +22,7 @@ public class NearestNeighbor implements Transform {
 	public void setSourceData(Object src) {
 		// TODO Auto-generated method stub
 		source = (BufferedImage)src;
+
 	}
 
 	@Override
@@ -32,14 +30,28 @@ public class NearestNeighbor implements Transform {
 		// TODO Auto-generated method stub
 		int newWidth = (int)(source.getWidth() * M);
 		int newWeight = (int)(source.getHeight() * M);
-		
 		result = new BufferedImage(newWidth, newWeight, source.getType());
+
 		for(int x =0 ; x < newWidth ; x++) {
 			for(int y = 0; y< newWeight ; y++) {
-				result.getRaster().setSample(x, y, 0,source.getRaster().getSample((int)(x/M), (int)(y/M), 0));
+				if(x + 1 > source.getWidth() || y + 1 > source.getHeight()) {
+					result.getRaster().setSample(x, y, 0,source.getRaster().getSample((int)(x/M), (int)(y/M), 0));
+				}
+				else {
+					int x1 = (int) (x/M);
+					int y1 = (int) (y/M);
+					double a = x/M - x1;
+					double b = y/M - y1;
+
+					int res = (int)((1-a)*(1-b)*source.getRaster().getSample(x1, y1, 0))+
+							(int)(a*(1-b)*source.getRaster().getSample(x1, y1+1, 0))+
+							(int)((1-a)*b*source.getRaster().getSample(x1+1, y1, 0))+
+							(int)(a*b*source.getRaster().getSample(x1+1, y1+1, 0)); 
+					result.getRaster().setSample(x, y, 0, res);
+				}
+				
 			}
 		}
-		
 	}
 
 	@Override
@@ -56,8 +68,7 @@ public class NearestNeighbor implements Transform {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
-		BufferedImage originalImage = null, processedImage = null;
+BufferedImage originalImage = null, processedImage = null;
 		
 		try {
 			originalImage = ImageIO.read(new File("Sample.jpg"));
@@ -67,7 +78,7 @@ public class NearestNeighbor implements Transform {
 			e.printStackTrace();
 		}
 		
-		NearestNeighbor n = new NearestNeighbor();
+		Bilinear n = new Bilinear();
 		n.setSourceData(originalImage);
 		n.setRatio(2.5);
 		n.calculate();
@@ -88,9 +99,13 @@ public class NearestNeighbor implements Transform {
 		f2.setVisible(true);*/
 		
 		try {
-			File outputfile = new File("Sample output.png"); ImageIO.write(processedImage, "png", outputfile);
-			} catch (IOException e) { e.printStackTrace();
-			}
+			File outputfile = new File("Sample output bilinear.png"); ImageIO.write(processedImage, "png", outputfile);
+			} 
+		catch (IOException e)
+		{ 
+			e.printStackTrace();
+			
+		}
 	}
-
+	
 }

@@ -31,7 +31,7 @@ public class Convolution implements Transform{
 		}
 		
 		Transform myConvolution = new Convolution();
-		myConvolution.setKernel(RasterFilters.getIdentity(3));
+		myConvolution.setKernel(RasterFilters.getGaussian(3, 100));
 		myConvolution.setSourceData(originalImage);
 		myConvolution.calculate();
 		processedImage = (BufferedImage) myConvolution.getResult();
